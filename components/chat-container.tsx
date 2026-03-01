@@ -8,19 +8,47 @@ import { ChatWelcome } from "@/components/chat-welcome"
 import { TypingIndicator } from "@/components/typing-indicator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-const botResponses = [
-  "Fire cannot kill a dragon. And neither can ignorance\u2014let me scorch it away for you.",
-  "I have flown over the bones of empires. What you seek is simpler than you think, mortal.",
-  "The ancient scrolls burned long ago, but their knowledge lives in me. Here is what I know...",
-  "You dare question the winged shadow? Bold. I respect that. The answer is as follows...",
-  "Across a thousand burning horizons I have gathered this truth: every great conquest begins with a single, terrible question.",
-  "The weak fear knowledge. The strong breathe it like fire. Let me kindle your understanding.",
-  "In the ashes of old worlds, new wisdom is born. Consider this carefully...",
-  "My scales have deflected sharper questions than this. But I shall answer anyway, for you have earned my attention.",
-]
+let mood = 0 // grows with stupidity, resets with respect
 
-function getRandomBotResponse(): string {
-  return botResponses[Math.floor(Math.random() * botResponses.length)]
+function generateDrogonReply(input: string): string {
+  const text = input.toLowerCase()
+
+  // Escalating sarcasm
+  if (text.includes("hi") || text.includes("hello")) {
+    return "You greet a dragon as if I were a tavern boy. Brave. Foolish. Continue."
+  }
+
+  if (text.includes("who are you")) {
+    return "I am Drogon. Scourge of certainty. Collector of bad questions."
+  }
+
+  if (text.includes("help")) {
+    mood += 1
+    return mood > 2
+      ? "Help? Again? The flames grow impatient. Ask better."
+      : "Help is earned. Speak clearly."
+  }
+
+  if (text.includes("why")) {
+    mood += 1
+    return "'Why' is the favorite word of those who refuse to think."
+  }
+
+  if (text.length < 5) {
+    mood += 1
+    return "That is not a thought. That is a cough."
+  }
+
+  // Rare wisdom drop
+  if (Math.random() < 0.15) {
+    mood = Math.max(0, mood - 1)
+    return "Very well. Wisdom, briefly: mastery begins when you stop asking safe questions."
+  }
+
+  // Default intelligent chaos
+  return mood > 3
+    ? "I am losing patience. Refine the thought or be reduced to silence."
+    : "Interesting. Dangerous. Continue."
 }
 
 export function ChatContainer() {
@@ -55,7 +83,7 @@ export function ChatContainer() {
     setTimeout(() => {
       const botMessage: Message = {
         id: crypto.randomUUID(),
-        content: getRandomBotResponse(),
+        content: generateDrogonReply(content),
         role: "bot",
         timestamp: new Date(),
       }
