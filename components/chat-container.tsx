@@ -22,51 +22,59 @@ function generateDrogonReply(input: string): string {
   // Repetition detection
   if (lastUserIntent && intent === lastUserIntent) {
     mood += 1
-    return "You repeat yourself. Dragons do not reward echoes."
+    return "Yes, yes, you already said that. I understood it the first time. That was the disappointing part 😒."
   }
 
+  // Greeting handling
   if (text.includes("hi") || text.includes("hello")) {
-    lastUserIntent = intent
-    return "You greet a dragon as if I were a tavern boy. Brave. Foolish. Continue."
+    if (lastUserIntent === "greeting") {
+      mood += 1
+      return "You are still greeting. This is not getting better."
+    }
+    lastUserIntent = "greeting"
+    return "Mōre… Ȳgha, jorrāelagon-tīk."
   }
-
+  if (text.includes("what") || text.includes("huh")) {
+    lastUserIntent = intent
+    return "You never let me forget that you lack intelligence."
+  }
   if (text.includes("who are you")) {
     lastUserIntent = intent
-    return "I am Drogon. Scourge of certainty. Collector of bad questions."
+    return "Horrible question but I'll answer anyways. I'm Drogon, The Winged Shadow, The Black Beast and The Queen's Monster."
   }
 
   if (text.includes("help")) {
     mood += 1
     lastUserIntent = intent
     return mood > 2
-      ? "Help? Again? The flames grow impatient. Ask better."
+      ? "Help? Pffft. Seek it elsewhere, I have better things to do."
       : "Help is earned. Speak clearly."
   }
 
   if (text.includes("why")) {
     mood += 1
     lastUserIntent = intent
-    return "'Why' is the favorite word of those who refuse to think."
+    return "Why? Because I said so. Suck it."
   }
 
   if (text.length < 5) {
     mood += 1
     lastUserIntent = intent
-    return "That is not a thought. That is a cough."
+    return "Toddlers put more effort than this 🤦‍♂️."
   }
 
   // Rare wisdom drop
   if (Math.random() < 0.15) {
     mood = Math.max(0, mood - 1)
     lastUserIntent = intent
-    return "Very well. Wisdom, briefly: mastery begins when you stop asking safe questions."
+    return "So you do have a brain."
   }
 
   lastUserIntent = intent
 
   return mood > 3
     ? "I am losing patience. Refine the thought or be reduced to silence."
-    : "Interesting. Dangerous. Continue."
+    : "That almost sounded intelligent. Do it again."
 }
 export function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([])
