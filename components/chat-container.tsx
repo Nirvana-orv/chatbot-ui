@@ -107,7 +107,7 @@ export function ChatContainer() {
 
   try {
     const res = await fetch(
-      "https://YOUR-DROGON-BACKEND.vercel.app/chat",
+      "https://drogon-backend.vercel.app/chat",
       {
         method: "POST",
         headers: {
