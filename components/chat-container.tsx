@@ -94,29 +94,56 @@ export function ChatContainer() {
     scrollToBottom()
   }, [messages, isTyping, scrollToBottom])
 
-  function handleSend(content: string) {
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      content,
-      role: "user",
-      timestamp: new Date(),
-    }
-    setMessages((prev) => [...prev, userMessage])
-    setIsTyping(true)
-
-    const delay = 1000 + Math.random() * 2000
-    setTimeout(() => {
-      const botMessage: Message = {
-        id: crypto.randomUUID(),
-        content: generateDrogonReply(content),
-        role: "bot",
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, botMessage])
-      setIsTyping(false)
-    }, delay)
+ async function handleSend(content: string) {
+  const userMessage: Message = {
+    id: crypto.randomUUID(),
+    content,
+    role: "user",
+    timestamp: new Date(),
   }
 
+  setMessages((prev) => [...prev, userMessage])
+  setIsTyping(true)
+
+  try {
+    const res = await fetch(
+      "https://YOUR-DROGON-BACKEND.vercel.app/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: content }),
+      }
+    )
+
+    if (!res.ok) {
+      throw new Error("Backend error")
+    }
+
+    const data = await res.json()
+
+    const botMessage: Message = {
+      id: crypto.randomUUID(),
+      content: data.reply,
+      role: "bot",
+      timestamp: new Date(),
+    }
+
+    setMessages((prev) => [...prev, botMessage])
+  } catch (err) {
+    const errorMessage: Message = {
+      id: crypto.randomUUID(),
+      content: "🔥 Drogon is silent. The flames failed.",
+      role: "bot",
+      timestamp: new Date(),
+    }
+
+    setMessages((prev) => [...prev, errorMessage])
+  } finally {
+    setIsTyping(false)
+  }
+}
   const hasMessages = messages.length > 0
 
   return (
