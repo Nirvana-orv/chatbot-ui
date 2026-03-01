@@ -9,21 +9,35 @@ import { TypingIndicator } from "@/components/typing-indicator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 let mood = 0 // grows with stupidity, resets with respect
+let lastUserIntent: string | null = null
+
+function normalizeIntent(text: string) {
+  return text.toLowerCase().split(/\s+/).slice(0, 4).join(" ")
+}
 
 function generateDrogonReply(input: string): string {
   const text = input.toLowerCase()
+  const intent = normalizeIntent(text)
 
-  // Escalating sarcasm
+  // Repetition detection
+  if (lastUserIntent && intent === lastUserIntent) {
+    mood += 1
+    return "You repeat yourself. Dragons do not reward echoes."
+  }
+
   if (text.includes("hi") || text.includes("hello")) {
+    lastUserIntent = intent
     return "You greet a dragon as if I were a tavern boy. Brave. Foolish. Continue."
   }
 
   if (text.includes("who are you")) {
+    lastUserIntent = intent
     return "I am Drogon. Scourge of certainty. Collector of bad questions."
   }
 
   if (text.includes("help")) {
     mood += 1
+    lastUserIntent = intent
     return mood > 2
       ? "Help? Again? The flames grow impatient. Ask better."
       : "Help is earned. Speak clearly."
@@ -31,26 +45,29 @@ function generateDrogonReply(input: string): string {
 
   if (text.includes("why")) {
     mood += 1
+    lastUserIntent = intent
     return "'Why' is the favorite word of those who refuse to think."
   }
 
   if (text.length < 5) {
     mood += 1
+    lastUserIntent = intent
     return "That is not a thought. That is a cough."
   }
 
   // Rare wisdom drop
   if (Math.random() < 0.15) {
     mood = Math.max(0, mood - 1)
+    lastUserIntent = intent
     return "Very well. Wisdom, briefly: mastery begins when you stop asking safe questions."
   }
 
-  // Default intelligent chaos
+  lastUserIntent = intent
+
   return mood > 3
     ? "I am losing patience. Refine the thought or be reduced to silence."
     : "Interesting. Dangerous. Continue."
 }
-
 export function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
