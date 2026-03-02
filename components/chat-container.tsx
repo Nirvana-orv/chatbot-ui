@@ -107,30 +107,36 @@ export function ChatContainer() {
 
   try {
     const res = await fetch(
-      "https://drogon-backend.vercel.app/api/chat",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: content }),
-      }
-    )
+  "https://drogon-backend.vercel.app/api/chat",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: content }),
+  }
+)
 
-    if (!res.ok) {
-      throw new Error("Backend error")
-    }
+const text = await res.text()
+console.log("RAW BACKEND RESPONSE:", text)
 
-    const data = await res.json()
+let data
+try {
+  data = JSON.parse(text)
+} catch {
+  throw new Error("Invalid JSON from backend")
+}
 
-    const botMessage: Message = {
-      id: crypto.randomUUID(),
-      content: data.reply,
-      role: "bot",
-      timestamp: new Date(),
-    }
+if (!data.reply) {
+  throw new Error("No reply field")
+}
 
-    setMessages((prev) => [...prev, botMessage])
+const botMessage: Message = {
+  id: crypto.randomUUID(),
+  content: data.reply,
+  role: "bot",
+  timestamp: new Date(),
+}
+
+setMessages((prev) => [...prev, botMessage])
   } catch (err) {
     const errorMessage: Message = {
       id: crypto.randomUUID(),
